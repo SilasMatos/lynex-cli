@@ -8,6 +8,11 @@ import {
 } from 'react'
 import { Button } from '#/components/ui/button'
 import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipPanel
+} from '@/components/animate-ui/components/base/tooltip'
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -39,10 +44,7 @@ import type {
   Link as LinkType,
   WorkspaceData
 } from './types'
-
-// ---------------------------------------------------------------------------
-// Context — avoids prop drilling through the recursive tree
-// ---------------------------------------------------------------------------
+import { Label } from '#/components/ui/label'
 
 type WorkspacePageContextType = {
   data: WorkspaceData
@@ -116,7 +118,7 @@ function InlineFolderInput({
     >
       <div className="mr-1 h-4 w-4" />
       <div className="mr-2 flex h-4 w-4 items-center justify-center text-muted-foreground">
-        <Folder className="h-4 w-4 text-amber-500" />
+        <Folder className="h-4 w-4 " />
       </div>
       <input
         ref={inputRef}
@@ -133,10 +135,6 @@ function InlineFolderInput({
     </div>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Link dialog (create / edit)
-// ---------------------------------------------------------------------------
 
 type LinkDialogState =
   | { open: false }
@@ -192,18 +190,21 @@ function LinkDialog({
             {state.open && state.mode === 'edit' ? 'Edit Link' : 'New Link'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2">
+          <Label htmlFor="link-title">Title</Label>
           <Input
             placeholder="Title"
             value={title}
             onChange={e => setTitle(e.target.value)}
             autoFocus
           />
+          <Label htmlFor="link-url">URL</Label>
           <Input
             placeholder="https://…"
             value={url}
             onChange={e => setUrl(e.target.value)}
           />
+          <Label htmlFor="link-description">Description</Label>
           <Input
             placeholder="Description (optional)"
             value={description}
@@ -222,10 +223,6 @@ function LinkDialog({
     </Dialog>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Folder tree node (recursive)
-// ---------------------------------------------------------------------------
 
 function FolderTreeNode({
   folder,
@@ -276,10 +273,7 @@ function FolderTreeNode({
     <TreeNode nodeId={folder.id} level={level} isLast={isLast}>
       <TreeNodeTrigger>
         <TreeExpander hasChildren />
-        <TreeIcon
-          hasChildren
-          icon={<Folder className="h-4 w-4 text-amber-500" />}
-        />
+        <TreeIcon hasChildren icon={<Folder className="h-4 w-4 " />} />
 
         {isRenaming ? (
           <input
@@ -299,50 +293,81 @@ function FolderTreeNode({
           <TreeLabel className="font-medium">{folder.name}</TreeLabel>
         )}
 
-        {/* Action buttons — visible on hover */}
         <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            className="p-1 rounded hover:bg-accent"
-            onClick={e => {
-              e.stopPropagation()
-              startCreatingFolder(folder.id)
-              expandFolder(folder.id)
-            }}
-            title="New subfolder"
-          >
-            <FolderPlus className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-          <button
-            className="p-1 rounded hover:bg-accent"
-            onClick={e => {
-              e.stopPropagation()
-              openAddLinkDialog(folder.id)
-              expandFolder(folder.id)
-            }}
-            title="Add link"
-          >
-            <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-          <button
-            className="p-1 rounded hover:bg-accent"
-            onClick={e => {
-              e.stopPropagation()
-              setRenamingFolderId(folder.id)
-            }}
-            title="Rename"
-          >
-            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-          <button
-            className="p-1 rounded hover:bg-accent hover:text-destructive"
-            onClick={e => {
-              e.stopPropagation()
-              deleteFolder(folder.id)
-            }}
-            title="Delete"
-          >
-            <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                className=""
+                onClick={e => {
+                  e.stopPropagation()
+                  startCreatingFolder(folder.id)
+                  expandFolder(folder.id)
+                }}
+                variant="outline"
+                size="icon"
+              >
+                <FolderPlus className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipPanel>Nova pasta</TooltipPanel>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={e => {
+                  e.stopPropagation()
+                  openAddLinkDialog(folder.id)
+                  expandFolder(folder.id)
+                }}
+                title="Add link"
+                variant="outline"
+                size="icon"
+              >
+                <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipPanel>Novo Link</TooltipPanel>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={e => {
+                  e.stopPropagation()
+                  setRenamingFolderId(folder.id)
+                }}
+                title="Rename"
+                variant="outline"
+                size="icon"
+              >
+                <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipPanel>Editar</TooltipPanel>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                className="hover:text-destructive"
+                onClick={e => {
+                  e.stopPropagation()
+                  deleteFolder(folder.id)
+                }}
+                title="Delete"
+                variant="outline"
+                size="icon"
+              >
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipPanel>Deletar</TooltipPanel>
+          </Tooltip>
         </div>
       </TreeNodeTrigger>
 
@@ -379,10 +404,6 @@ function FolderTreeNode({
   )
 }
 
-// ---------------------------------------------------------------------------
-// Link tree node (leaf)
-// ---------------------------------------------------------------------------
-
 function LinkTreeNode({
   link,
   level,
@@ -398,56 +419,72 @@ function LinkTreeNode({
     <TreeNode nodeId={link.id} level={level} isLast={isLast}>
       <TreeNodeTrigger>
         <TreeExpander />
-        <TreeIcon icon={<Globe className="h-4 w-4 text-blue-500" />} />
+        <TreeIcon icon={<Globe className="h-4 w-4 " />} />
         <TreeLabel>{link.title}</TreeLabel>
 
-        {link.description && (
+        {/* {link.description && (
           <span className="ml-2 hidden text-xs text-muted-foreground sm:inline truncate max-w-45">
             {link.description}
           </span>
-        )}
+        )} */}
 
-        {/* Action buttons */}
         <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            className="p-1 rounded hover:bg-accent"
-            onClick={e => {
-              e.stopPropagation()
-              window.open(link.url, '_blank', 'noopener,noreferrer')
-            }}
-            title="Open link"
-          >
-            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-          <button
-            className="p-1 rounded hover:bg-accent"
-            onClick={e => {
-              e.stopPropagation()
-              openEditLinkDialog(link)
-            }}
-            title="Edit"
-          >
-            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-          <button
-            className="p-1 rounded hover:bg-accent hover:text-destructive"
-            onClick={e => {
-              e.stopPropagation()
-              deleteLink(link.id)
-            }}
-            title="Delete"
-          >
-            <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={e => {
+                  e.stopPropagation()
+                  window.open(link.url, '_blank', 'noopener,noreferrer')
+                }}
+              >
+                <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipPanel>Abrir Link</TooltipPanel>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={e => {
+                  e.stopPropagation()
+                  openEditLinkDialog(link)
+                }}
+                title="Edit"
+                variant="outline"
+                size="icon"
+              >
+                <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipPanel>Editar</TooltipPanel>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={e => {
+                  e.stopPropagation()
+                  deleteLink(link.id)
+                }}
+                title="Delete"
+                variant="outline"
+                size="icon"
+              >
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipPanel>Deletar</TooltipPanel>
+          </Tooltip>
         </div>
       </TreeNodeTrigger>
     </TreeNode>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Empty state
-// ---------------------------------------------------------------------------
 
 function EmptyState({ onCreateFolder }: { onCreateFolder: () => void }) {
   return (
@@ -467,10 +504,6 @@ function EmptyState({ onCreateFolder }: { onCreateFolder: () => void }) {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Main page
-// ---------------------------------------------------------------------------
-
 export function WorkspacePage() {
   const workspace = useWorkspace()
   const {
@@ -483,7 +516,6 @@ export function WorkspacePage() {
     updateLink
   } = workspace
 
-  // ---- UI state ----
   const [expandedIds, setExpandedIds] = useState<string[]>(() =>
     data.folders.map(f => f.id)
   )
@@ -496,14 +528,12 @@ export function WorkspacePage() {
     open: false
   })
 
-  // ---- Derived data ----
   const rootFolders = data.folders.filter(f => f.parentId === null)
   const rootLinks = data.links.filter(l => l.folderId === null)
   const isCreatingAtRoot = isCreatingFolder && creatingFolderParentId === null
   const isEmpty =
     rootFolders.length === 0 && rootLinks.length === 0 && !isCreatingFolder
 
-  // ---- Helpers ----
   const expandFolder = useCallback((folderId: string) => {
     setExpandedIds(prev =>
       prev.includes(folderId) ? prev : [...prev, folderId]
@@ -540,7 +570,6 @@ export function WorkspacePage() {
     [addFolder, expandFolder]
   )
 
-  // ---- Context value ----
   const contextValue: WorkspacePageContextType = {
     data,
     addFolder,
@@ -563,7 +592,6 @@ export function WorkspacePage() {
   return (
     <WorkspacePageContext.Provider value={contextValue}>
       <div>
-        {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">My Links</h1>
           <div className="flex gap-2">
@@ -582,7 +610,6 @@ export function WorkspacePage() {
           </div>
         </div>
 
-        {/* Tree or empty state */}
         {isEmpty ? (
           <EmptyState onCreateFolder={() => startCreatingFolder(null)} />
         ) : (
