@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useOptimistic, useState, useTransition } from 'react'
-import type { Folder, Link, WorkspaceAction, WorkspaceData } from './types'
+import type { Folder, Link, WorkspaceAction, WorkspaceData } from '../types'
 
 const STORAGE_KEY = 'linex-workspace'
 
@@ -66,6 +66,37 @@ function reducer(state: WorkspaceData, action: WorkspaceAction): WorkspaceData {
         ),
       }
 
+    case 'MOVE_FOLDER': {
+      // Prevent moving a folder into itself or one of its descendants
+      const isDescendant = (parentId: string | null, targetId: string): boolean => {
+        if (parentId === null) return false
+        if (parentId === targetId) return true
+        const parent = state.folders.find((f) => f.id === parentId)
+        return parent ? isDescendant(parent.parentId, targetId) : false
+      }
+      if (action.newParentId !== null && isDescendant(action.newParentId, action.folderId)) {
+        return state
+      }
+      return {
+        ...state,
+        folders: state.folders.map((f) =>
+          f.id === action.folderId
+            ? { ...f, parentId: action.newParentId, updatedAt: new Date().toISOString() }
+            : f
+        ),
+      }
+    }
+
+    case 'MOVE_LINK':
+      return {
+        ...state,
+        links: state.links.map((l) =>
+          l.id === action.linkId
+            ? { ...l, folderId: action.newFolderId, updatedAt: new Date().toISOString() }
+            : l
+        ),
+      }
+
     default:
       return state
   }
@@ -112,14 +143,14 @@ export function useWorkspace() {
     (
       title: string,
       url: string,
-      description: string = '',
+ 
       folderId: string | null = null
     ) => {
       const link: Link = {
         id: crypto.randomUUID(),
         title,
         url,
-        description,
+    
         folderId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -158,6 +189,20 @@ export function useWorkspace() {
     [dispatch]
   )
 
+  const moveFolder = useCallback(
+    (folderId: string, newParentId: string | null) => {
+      dispatch({ type: 'MOVE_FOLDER', folderId, newParentId })
+    },
+    [dispatch]
+  )
+
+  const moveLink = useCallback(
+    (linkId: string, newFolderId: string | null) => {
+      dispatch({ type: 'MOVE_LINK', linkId, newFolderId })
+    },
+    [dispatch]
+  )
+
   return {
     data: optimisticData,
     isPending,
@@ -167,5 +212,7 @@ export function useWorkspace() {
     deleteLink,
     renameFolder,
     updateLink,
+    moveFolder,
+    moveLink,
   }
 }

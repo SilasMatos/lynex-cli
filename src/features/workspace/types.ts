@@ -10,7 +10,7 @@ export type Link = {
   id: string
   title: string
   url: string
-  description: string
+
   folderId: string | null
   createdAt: string
   updatedAt: string
@@ -28,3 +28,16 @@ export type WorkspaceAction =
   | { type: 'DELETE_LINK'; linkId: string }
   | { type: 'RENAME_FOLDER'; folderId: string; name: string }
   | { type: 'UPDATE_LINK'; linkId: string; data: Partial<Link> }
+
+export type DndItemData =
+  | { type: 'folder'; id: string; name: string }
+  | { type: 'link'; id: string; name: string }
+
+export type DndDropData =
+  | { type: 'folder'; id: string }
+  | { type: 'root'; id: string }
+
+export type LinkDialogState =
+  | { open: false }
+  | { open: true; mode: 'add'; folderId: string | null }
+  | { open: true; mode: 'edit'; link: Link }
