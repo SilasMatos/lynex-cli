@@ -1,82 +1,37 @@
 import Logo from '#/components/logo'
 import { Button } from '#/components/ui/button'
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList
-} from '#/components/ui/navigation-menu'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '#/components/ui/popover'
-
-// Navigation links array to be used in both desktop and mobile menus
-const navigationLinks = [
-  { active: true, href: '#', label: 'Home' },
-  { href: '#', label: 'Features' },
-  { href: '#', label: 'Pricing' },
-  { href: '#', label: 'About' }
-]
 
 export function Navbar() {
   return (
-    <header className="border-b px-4 md:px-6">
+    <header className="border-b border-white/5 bg-trasparent px-4 md:px-6">
       <div className="flex h-16 justify-between gap-4">
-        {/* Left side */}
         <div className="flex gap-2">
-          <div className="flex items-center md:hidden">
-            {/* Mobile menu trigger */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button className="group size-8" size="icon" variant="ghost">
-                  <svg
-                    className="pointer-events-none"
-                    fill="none"
-                    height={16}
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    width={16}
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      className="-translate-y-[7px] origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-315"
-                      d="M4 12L20 12"
-                    />
-                    <path
-                      className="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-aria-expanded:rotate-45"
-                      d="M4 12H20"
-                    />
-                    <path
-                      className="origin-center translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-y-0 group-aria-expanded:rotate-135"
-                      d="M4 12H20"
-                    />
-                  </svg>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                className="w-36 p-1 md:hidden"
-              ></PopoverContent>
-            </Popover>
-          </div>
-          {/* Main nav */}
           <div className="flex items-center gap-6">
-            <a className="text-primary hover:text-primary/90" href="#">
+            <a
+              className="flex items-center gap-2 text-white hover:text-white/90 transition-colors"
+              href="#"
+            >
               <Logo />
+              <span className="font-semibold text-base tracking-tight">
+                lynex
+              </span>
             </a>
           </div>
         </div>
-        {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button asChild className="text-sm" size="sm" variant="ghost">
+          <Button
+            asChild
+            className="text-sm text-white/60 hover:text-white hover:bg-white/5"
+            size="sm"
+            variant="ghost"
+          >
             <a href="#">Sign In</a>
           </Button>
-          <Button asChild className="text-sm" size="sm">
+          <Button
+            asChild
+            className="text-sm bg-white text-black hover:bg-white/90"
+            size="sm"
+          >
             <a href="#">Get Started</a>
           </Button>
         </div>

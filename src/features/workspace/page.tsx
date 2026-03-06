@@ -165,9 +165,7 @@ export function WorkspacePage() {
       <DragDropProvider onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
         <div data-slot="workspace-page">
           <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Meus Links
-            </h1>
+            <h1 className="text-xl font-semibold tracking-tight">Workspace</h1>
             <div className="flex gap-2">
               <Button
                 variant="outline"

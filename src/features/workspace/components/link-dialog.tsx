@@ -51,7 +51,7 @@ export function LinkDialog({ state, onClose }: LinkDialogProps) {
     <Dialog open={state.open} onOpenChange={open => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="">
             {state.open && state.mode === 'edit' ? 'Editar Link' : 'Novo Link'}
           </DialogTitle>
         </DialogHeader>
@@ -71,7 +71,7 @@ export function LinkDialog({ state, onClose }: LinkDialogProps) {
             value={url}
             onChange={e => setUrl(e.target.value)}
           />
-          \
+
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar

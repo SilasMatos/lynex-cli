@@ -53,9 +53,7 @@ export function FolderTreeNode({
   const isCreatingChildFolder =
     isCreatingFolder && creatingFolderParentId === folder.id
   const hasChildren =
-    childFolders.length > 0 ||
-    childLinks.length > 0 ||
-    isCreatingChildFolder
+    childFolders.length > 0 || childLinks.length > 0 || isCreatingChildFolder
   const isRenaming = renamingFolderId === folder.id
 
   const { ref: dragRef, isDragging } = useDraggable({
