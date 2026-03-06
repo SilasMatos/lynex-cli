@@ -28,6 +28,8 @@ export type WorkspaceAction =
   | { type: 'DELETE_LINK'; linkId: string }
   | { type: 'RENAME_FOLDER'; folderId: string; name: string }
   | { type: 'UPDATE_LINK'; linkId: string; data: Partial<Link> }
+  | { type: 'MOVE_FOLDER'; folderId: string; newParentId: string | null }
+  | { type: 'MOVE_LINK'; linkId: string; newFolderId: string | null }
 
 export type DndItemData =
   | { type: 'folder'; id: string; name: string }

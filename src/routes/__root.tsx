@@ -1,4 +1,4 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { Outlet, createRootRoute, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
@@ -10,9 +10,13 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
+  const pathname = useRouterState({ select: s => s.location.pathname })
+  const isAuth = pathname === '/auth'
+
   return (
     <>
       <div className="min-h-screen w-full bg-black relative overflow-hidden">
+        {/* Top spotlight */}
         <div
           className="absolute inset-0 z-0 pointer-events-none"
           style={{
@@ -20,27 +24,27 @@ function RootComponent() {
               'radial-gradient(circle at top, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 20%, rgba(0,0,0,0) 60%)'
           }}
         />
-
-        <div className="relative z-10 min-h-screen flex flex-col">
-          <Navbar />
-
-          <main className="flex-1 flex justify-center pt-16">
-            <div className="mx-auto w-full max-w-4xl px-6 lg:px-12 my-4">
-              <Outlet />
-            </div>
-          </main>
+        {/* Vercel-style grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
+            backgroundSize: '80px 80px'
+          }}
+        />
+        {/* Content */}
+        <div className="relative z-10">
+          {!isAuth && <Navbar />}
+          <div className="mx-auto w-full max-w-4xl px-6 lg:px-12 my-4">
+            <Outlet />
+          </div>
         </div>
       </div>
-
       <TanStackDevtools
-        config={{
-          position: 'bottom-right'
-        }}
+        config={{ position: 'bottom-right' }}
         plugins={[
-          {
-            name: 'TanStack Router',
-            render: <TanStackRouterDevtoolsPanel />
-          }
+          { name: 'TanStack Router', render: <TanStackRouterDevtoolsPanel /> }
         ]}
       />
     </>

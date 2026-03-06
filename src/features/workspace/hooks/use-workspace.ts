@@ -67,7 +67,6 @@ function reducer(state: WorkspaceData, action: WorkspaceAction): WorkspaceData {
       }
 
     case 'MOVE_FOLDER': {
-      // Prevent moving a folder into itself or one of its descendants
       const isDescendant = (parentId: string | null, targetId: string): boolean => {
         if (parentId === null) return false
         if (parentId === targetId) return true
