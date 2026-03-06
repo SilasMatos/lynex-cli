@@ -1,7 +1,7 @@
 import { createAuthClient } from 'better-auth/react'
 
 export const authClient = createAuthClient({
-  baseURL: 'http://localhost:3333',
+  baseURL: 'https://lynex-api-production.up.railway.app',
 })
 
 export const { signIn, signUp, signOut, useSession } = authClient
