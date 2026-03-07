@@ -24,16 +24,14 @@ function RootComponent() {
               'radial-gradient(circle at top, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 20%, rgba(0,0,0,0) 60%)'
           }}
         />
-        {/* Vercel-style grid */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
+              'linear-gradient(rgba(255, 255, 255, 0.009) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px)',
             backgroundSize: '80px 80px'
           }}
         />
-        {/* Content */}
         <div className="relative z-10">
           {!isAuth && <Navbar />}
           <div className="mx-auto w-full max-w-4xl px-6 lg:px-12 my-4">
