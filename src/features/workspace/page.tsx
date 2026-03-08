@@ -1,8 +1,25 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { DragDropProvider, DragOverlay } from '@dnd-kit/react'
 import { Button } from '#/components/ui/button'
+import { Input } from '#/components/ui/input'
+import { Skeleton } from '#/components/ui/skeleton'
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '#/components/ui/popover'
 import { TreeProvider, TreeView } from '#/components/kibo-ui/tree'
-import { FolderPlus, Link2 } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  FolderPlus,
+  Link2,
+  Pencil,
+  RefreshCw,
+  Plus
+} from 'lucide-react'
+import { cn } from '#/lib/utils'
 import { useWorkspace } from '@/features/workspace/hooks/use-workspace'
 import type {
   Link as LinkType,
@@ -19,11 +36,33 @@ import { LinkDialog } from './components/link-dialog'
 import { RootDropZone } from './components/root-drop-zone'
 import { DragOverlayContent } from './components/drag-overlay-content'
 import { EmptyState } from './components/empty-state'
+import { ShareButton } from './components/share-button'
+
+function WorkspaceSkeleton() {
+  return (
+    <div className="flex flex-col gap-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-2 py-1">
+          <Skeleton className="size-4 rounded" />
+          <Skeleton
+            className="h-4 rounded"
+            style={{ width: `${60 + i * 20}px` }}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export function WorkspacePage() {
   const workspace = useWorkspace()
   const {
     data,
+    workspaceId,
+    workspaceName,
+    allWorkspaces,
+    isLoading,
+    isSyncing,
     addFolder,
     addLink,
     deleteFolder,
@@ -31,7 +70,10 @@ export function WorkspacePage() {
     renameFolder,
     updateLink,
     moveFolder,
-    moveLink
+    moveLink,
+    selectWorkspace,
+    renameWorkspace,
+    createWorkspace
   } = workspace
 
   const [expandedIds, setExpandedIds] = useState<string[]>(() =>
@@ -39,6 +81,19 @@ export function WorkspacePage() {
   )
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null)
   const [isCreatingFolder, setIsCreatingFolder] = useState(false)
+  const [editingName, setEditingName] = useState(false)
+  const [nameInput, setNameInput] = useState(workspaceName)
+  const [switcherOpen, setSwitcherOpen] = useState(false)
+
+  useEffect(() => {
+    setNameInput(workspaceName)
+  }, [workspaceName])
+
+  const handleNameSubmit = useCallback(() => {
+    const trimmed = nameInput.trim()
+    if (trimmed && trimmed !== workspaceName) renameWorkspace(trimmed)
+    setEditingName(false)
+  }, [nameInput, workspaceName, renameWorkspace])
   const [creatingFolderParentId, setCreatingFolderParentId] = useState<
     string | null
   >(null)
@@ -141,6 +196,10 @@ export function WorkspacePage() {
 
   const contextValue: WorkspacePageContextType = {
     data,
+    workspaceId,
+    workspaceName,
+    allWorkspaces,
+    isSyncing,
     addFolder,
     addLink,
     deleteFolder,
@@ -157,32 +216,118 @@ export function WorkspacePage() {
     stopCreatingFolder,
     openAddLinkDialog,
     openEditLinkDialog,
-    expandFolder
+    expandFolder,
+    selectWorkspace,
+    renameWorkspace,
+    createWorkspace
   }
 
   return (
     <WorkspacePageProvider value={contextValue}>
       <DragDropProvider onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
         <div data-slot="workspace-page">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-xl font-semibold tracking-tight">Workspace</h1>
+          <div className="mb-6 flex items-center justify-between ">
+            <div className="flex items-center gap-2">
+              {editingName ? (
+                <Input
+                  autoFocus
+                  value={nameInput}
+                  onChange={e => setNameInput(e.target.value)}
+                  onBlur={handleNameSubmit}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleNameSubmit()
+                    if (e.key === 'Escape') {
+                      setNameInput(workspaceName)
+                      setEditingName(false)
+                    }
+                  }}
+                  className="h-7 w-48 px-2 text-base font-semibold"
+                />
+              ) : (
+                <button
+                  className="flex items-center gap-1.5 text-lg font-semibold tracking-tight hover:opacity-70 transition-opacity"
+                  onClick={() => {
+                    setNameInput(workspaceName)
+                    setEditingName(true)
+                  }}
+                >
+                  {workspaceName}
+
+                  <Pencil className="size-3.5 text-muted-foreground" />
+                </button>
+              )}
+              {allWorkspaces.length >= 1 && (
+                <Popover open={switcherOpen} onOpenChange={setSwitcherOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="icon" className="size-6">
+                      <ChevronDown className="size-3.5" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-56 p-1">
+                    <div className="flex flex-col gap-0.5">
+                      {allWorkspaces.map(ws => (
+                        <button
+                          key={ws.id}
+                          onClick={() => {
+                            selectWorkspace(ws.id)
+                            setSwitcherOpen(false)
+                          }}
+                          className={cn(
+                            'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent transition-colors text-left',
+                            ws.id === workspaceId && 'bg-accent'
+                          )}
+                        >
+                          <span className="flex size-3.5 shrink-0 items-center justify-center">
+                            {ws.id === workspaceId && (
+                              <Check className="size-3.5" />
+                            )}
+                          </span>
+                          {ws.name}
+                        </button>
+                      ))}
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={async () => {
+                          const newId = await createWorkspace()
+                          setSwitcherOpen(false)
+                          if (newId) {
+                            setNameInput('Novo Workspace')
+                            setEditingName(true)
+                          }
+                        }}
+                        className="w-full mt-1"
+                      >
+                        <Plus /> Novo Workspace
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+              {isSyncing && (
+                <RefreshCw className="size-3.5 animate-spin text-muted-foreground" />
+              )}
+            </div>
             <div className="flex gap-2">
+              <ShareButton />
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => openAddLinkDialog(null)}
               >
-                <Link2 className="mr-2 size-4" />
+                <Link2 className="size-4" />
                 Novo Link
               </Button>
               <Button size="sm" onClick={() => startCreatingFolder(null)}>
-                <FolderPlus className="mr-2 size-4" />
+                <FolderPlus className="size-4" />
                 Nova Pasta
               </Button>
             </div>
           </div>
 
-          {isEmpty ? (
+          {isLoading ? (
+            <WorkspaceSkeleton />
+          ) : isEmpty ? (
             <EmptyState onCreateFolder={() => startCreatingFolder(null)} />
           ) : (
             <TreeProvider

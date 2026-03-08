@@ -1,0 +1,359 @@
+{
+  "info": {
+    "name": "bun-auth API",
+    "_postman_id": "bun-auth-elysia-collection",
+    "description": "Coleção Postman para a API Elysia + BetterAuth com autenticação por email e senha.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "lynex-api-production.up.railway.app",
+      "type": "string"
+    },
+    {
+      "key": "workspaceId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Geral",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Verifica se a API está no ar."
+          },
+          "response": []
+        },
+        {
+          "name": "Obter usuário por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}",
+                "description": "Cookie de sessão obtido após o login."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "ID do usuário"
+                }
+              ]
+            },
+            "description": "Retorna os dados de um usuário pelo ID. Requer autenticação."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Autenticação (BetterAuth)",
+      "item": [
+        {
+          "name": "Cadastro (Sign Up)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const cookie = pm.response.headers.get('Set-Cookie');",
+                  "if (cookie) {",
+                  "    pm.collectionVariables.set('sessionCookie', cookie);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{baseUrl}}",
+                "description": "Obrigatório pelo Better Auth para validação de origem."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"João Silva\",\n  \"email\": \"joao@example.com\",\n  \"password\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/sign-up/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "sign-up", "email"]
+            },
+            "description": "Registra um novo usuário com email e senha. Como `autoSignIn` está habilitado, já retorna uma sessão ativa."
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Sign In)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const cookie = pm.response.headers.get('Set-Cookie');",
+                  "if (cookie) {",
+                  "    pm.collectionVariables.set('sessionCookie', cookie);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{baseUrl}}",
+                "description": "Obrigatório pelo Better Auth para validação de origem."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joao@example.com\",\n  \"password\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/sign-in/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "sign-in", "email"]
+            },
+            "description": "Autentica um usuário com email e senha. O cookie de sessão é salvo automaticamente na variável `sessionCookie`."
+          },
+          "response": []
+        },
+        {
+          "name": "Obter Sessão Atual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/get-session",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "get-session"]
+            },
+            "description": "Retorna os dados da sessão e do usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout (Sign Out)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('sessionCookie', '');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{sessionCookie}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{baseUrl}}",
+                "description": "Obrigatório pelo Better Auth para validação de origem."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/sign-out",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "sign-out"]
+            },
+            "description": "Encerra a sessão do usuário. Limpa a variável `sessionCookie` automaticamente."
+          },
+          "response": []
+        },
+        {
+          "name": "Esqueci a Senha",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{baseUrl}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joao@example.com\",\n  \"redirectTo\": \"http://localhost:3333/reset-password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forget-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forget-password"]
+            },
+            "description": "Solicita o envio de email para redefinição de senha."
+          },
+          "response": []
+        },
+        {
+          "name": "Redefinir Senha",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{baseUrl}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"novaSenha456\",\n  \"token\": \"<token-recebido-por-email>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            },
+            "description": "Redefine a senha do usuário usando o token recebido por email."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Workspaces",
+      "item": [
+        {
+          "name": "Sincronizar Workspace (criar ou atualizar)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "{{sessionCookie}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Meu Workspace\",\n  \"folders\": [\n    { \"name\": \"Trabalho\", \"parentId\": null },\n    { \"name\": \"Pessoal\", \"parentId\": null }\n  ],\n  \"links\": [\n    { \"title\": \"GitHub\", \"url\": \"https://github.com\", \"folderId\": null },\n    { \"title\": \"Google\", \"url\": \"https://google.com\", \"folderId\": null }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", "sync"]
+            },
+            "description": "Cria um novo workspace ou atualiza um existente (passando `id`). Substitui todos os folders e links do workspace pelos enviados. O `workspaceId` retornado pode ser usado para compartilhar via link."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.workspaceId) {",
+                  "    pm.collectionVariables.set('workspaceId', res.workspaceId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Listar Meus Workspaces",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Cookie", "value": "{{sessionCookie}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces"]
+            },
+            "description": "Lista todos os workspaces do usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Ver Workspace Compartilhado (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/{{workspaceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", "{{workspaceId}}"]
+            },
+            "description": "Acesso público ao workspace. Qualquer pessoa com o UUID pode visualizar os folders e links. Use este UUID para compartilhar."
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar Workspace",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Cookie", "value": "{{sessionCookie}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/{{workspaceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", "{{workspaceId}}"]
+            },
+            "description": "Remove o workspace e todos os seus folders e links (cascade). Apenas o dono pode deletar."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

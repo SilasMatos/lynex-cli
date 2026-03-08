@@ -1,8 +1,9 @@
 import Logo from '#/components/logo'
 import { Button } from '#/components/ui/button'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { signOut, useSession } from '#/lib/auth-client'
 import { LogOut } from 'lucide-react'
+import { Separator } from './ui/separator'
 
 export function Navbar() {
   const navigate = useNavigate()
@@ -14,27 +15,29 @@ export function Navbar() {
   }
 
   return (
-    <header className="border-b border-white/5 bg-transparent px-4 md:px-6">
+    <header className="  bg-transparent px-4 md:px-6 container mx-auto ">
       <div className="flex h-16 justify-between gap-4">
         <div className="flex gap-2">
           <div className="flex items-center gap-6">
-            <a
+            <Link
               className="flex items-center gap-2 text-white hover:text-white/90 transition-colors"
-              href="/"
+              to="/"
             >
               <Logo />
               <span className="font-semibold text-base tracking-tight">
                 lynex
               </span>
-            </a>
+            </Link>
           </div>
         </div>
+
         <div className="flex items-center gap-2">
           {session ? (
             <>
               <span className="text-sm text-white/40 hidden sm:block">
                 {session.user.name || session.user.email}
               </span>
+              <Separator orientation="vertical" className="" />
               <Button
                 className="text-sm text-white/60 hover:text-white hover:bg-white/5"
                 size="sm"
@@ -53,14 +56,7 @@ export function Navbar() {
                 size="sm"
                 variant="ghost"
               >
-                <a href="/auth">Sign In</a>
-              </Button>
-              <Button
-                asChild
-                className="text-sm bg-white text-black hover:bg-white/90"
-                size="sm"
-              >
-                <a href="/auth">Get Started</a>
+                <Link to="/auth">Sign In</Link>
               </Button>
             </>
           )}
