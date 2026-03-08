@@ -75,12 +75,10 @@ export function AuthForm() {
     navigate({ to: '/', search: { folder: undefined, link: undefined } })
   }
 
-  const handleGoogleSignIn = async () => {
-    setError(null)
-    await signIn.social({
-      provider: 'google',
-      callbackURL: window.location.origin
-    })
+  const handleGoogleSignIn = () => {
+    const apiBase = 'https://lynex-api-production.up.railway.app'
+    const callbackURL = encodeURIComponent(window.location.origin)
+    window.location.href = `${apiBase}/auth/sign-in/social?provider=google&callbackURL=${callbackURL}`
   }
 
   return (
