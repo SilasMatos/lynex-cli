@@ -1,4 +1,4 @@
-const BASE_URL = 'https://lynex-api-production.up.railway.app'
+const BASE_URL = ''
 
 export type ApiFolder = {
   id: string

@@ -9,6 +9,12 @@ import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
+  server: {
+    proxy: {
+      '/auth': 'http://localhost:3333',
+      '/workspaces': 'http://localhost:3333',
+    },
+  },
   plugins: [
     devtools(),
     contentCollections(),
