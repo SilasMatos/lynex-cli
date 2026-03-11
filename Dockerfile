@@ -1,7 +1,7 @@
 # Stage 1: build
-FROM node:22-alpine AS build
+FROM node:22-slim AS build
 WORKDIR /app
-RUN npm install -g pnpm
+RUN corepack enable
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
