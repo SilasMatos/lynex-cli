@@ -78,8 +78,7 @@ export function AuthForm() {
   const handleGoogleSignIn = async () => {
     setError(null)
     await signIn.social({
-      provider: 'google',
-      callbackURL: window.location.origin
+      provider: 'google'
     })
   }
 
