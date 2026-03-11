@@ -108,7 +108,7 @@ function SharedWorkspacePage() {
   const rootLinks = workspace?.links.filter(l => l.folderId === null) ?? []
 
   return (
-    <div className="min-h-screen w-full bg-black relative overflow-hidden">
+    <div className="min-h-screen w-full  relative overflow-hidden">
       <div
         className="absolute inset-0 z-0 pointer-events-none"
         style={{
