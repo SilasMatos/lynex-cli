@@ -436,27 +436,23 @@ export const TreeIcon = ({
   const getDefaultIcon = () =>
     hasChildren ? (
       isExpanded ? (
-        <FolderOpen className="h-4 w-4 " />
+        <FolderOpen className="size-4" />
       ) : (
-        <Folder className="h-4 w-4" />
+        <Folder className="size-4" />
       )
     ) : (
-      <>
-        <Globe />
-      </>
+      <Globe className="size-4" />
     )
 
   return (
     <motion.div
       className={cn(
-        'mr-2 flex h-4 w-4 items-center justify-center text-muted-foreground',
+        'mr-2 flex size-4 shrink-0 items-center justify-center text-muted-foreground [&_svg]:size-4',
         className
       )}
-      transition={{ duration: 0.15 }}
-      whileHover={{ scale: 1.1 }}
       {...props}
     >
-      {getDefaultIcon()}
+      {icon ?? getDefaultIcon()}
     </motion.div>
   )
 }

@@ -15,8 +15,8 @@ export function Navbar() {
   }
 
   return (
-    <header className="  bg-transparent px-4 md:px-6 container mx-auto ">
-      <div className="flex h-16 justify-between gap-4">
+    <header className="container mx-auto bg-transparent px-4 md:px-6">
+      <div className="flex h-16 min-h-14 items-center justify-between gap-2 sm:gap-4">
         <div className="flex gap-2">
           <div className="flex items-center gap-6">
             <Link
@@ -35,16 +35,17 @@ export function Navbar() {
           {session ? (
             <>
               <span className="text-sm text-white/40 hidden sm:block">
-                {session.user.name || session.user.email}
+                {session.user?.name || session.user?.email || ''}
               </span>
               <Separator orientation="vertical" className="" />
               <Button
-                className="text-sm text-white/60 hover:text-white hover:bg-white/5"
+                className="min-h-9 min-w-9 text-sm text-white/60 hover:bg-white/5 hover:text-white"
                 size="sm"
                 variant="ghost"
                 onClick={handleLogout}
+                aria-label="Sair"
               >
-                <LogOut className="h-4 w-4 mr-1" />
+                <LogOut className="mr-1 size-4" aria-hidden />
                 Sair
               </Button>
             </>

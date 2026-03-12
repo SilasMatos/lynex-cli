@@ -91,6 +91,12 @@ function LinkItem({ link, depth = 0 }: { link: ApiLink; depth?: number }) {
   )
 }
 
+function getWorkspaceDisplayName(workspace: ApiWorkspace | null): string {
+  if (!workspace) return 'Workspace'
+  const w = workspace as ApiWorkspace & { title?: string }
+  return w.name?.trim() || w.title?.trim() || 'Workspace'
+}
+
 function SharedWorkspacePage() {
   const { workspaceId } = Route.useParams()
   const [workspace, setWorkspace] = useState<ApiWorkspace | null>(null)
@@ -104,35 +110,30 @@ function SharedWorkspacePage() {
       .finally(() => setIsLoading(false))
   }, [workspaceId])
 
+  useEffect(() => {
+    if (workspace) {
+      const name = getWorkspaceDisplayName(workspace)
+      document.title = name !== 'Workspace' ? `${name} · Lynex` : 'Lynex'
+    }
+    return () => {
+      document.title = 'Lynex'
+    }
+  }, [workspace])
+
   const rootFolders = workspace?.folders.filter(f => f.parentId === null) ?? []
   const rootLinks = workspace?.links.filter(l => l.folderId === null) ?? []
+  const displayName = getWorkspaceDisplayName(workspace)
 
   return (
     <div className="min-h-screen w-full  relative overflow-hidden">
-      <div
-        className="absolute inset-0 z-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(circle at top, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 20%, rgba(0,0,0,0) 60%)'
-        }}
-      />
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255, 255, 255, 0.009) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px)',
-          backgroundSize: '80px 80px'
-        }}
-      />
-
       <div className="relative z-10">
         <div className="mx-auto w-full max-w-4xl px-6 lg:px-12 my-4">
           <div className="mb-6">
             {isLoading ? (
               <Skeleton className="h-7 w-48 mb-1" />
             ) : (
-              <h1 className="text-xl font-semibold tracking-tight">
-                {workspace?.name ?? 'Workspace'}
+              <h1 className="text-xl font-semibold tracking-tight" title={displayName}>
+                {displayName}
               </h1>
             )}
             <p className="text-sm text-white/40 mt-1">

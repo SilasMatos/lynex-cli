@@ -33,7 +33,7 @@ function RootComponent() {
         />
         <div className="relative z-10">
           {!isAuth && <Navbar />}
-          <div className="mx-auto w-full max-w-4xl px-6 lg:px-12 my-4 mt-10">
+          <div className="mx-auto w-full max-w-4xl px-4 my-4 mt-10 sm:px-6 lg:px-12">
             <Outlet />
           </div>
         </div>

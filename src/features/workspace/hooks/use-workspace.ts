@@ -1,9 +1,10 @@
-﻿import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from '#/lib/auth-client'
 import { syncWorkspace, listWorkspaces } from '#/lib/workspace-api'
 import type { ApiWorkspace } from '#/lib/workspace-api'
+import type { WorkspaceJsonPayload } from '#/lib/workspace-json'
 import {
   foldersCollection,
   linksCollection,
@@ -154,6 +155,66 @@ export function useWorkspace() {
     }
   }, [isAuthenticated, createWorkspaceMutation])
 
+  const { mutateAsync: createFromPayloadMutation } = useMutation({
+    mutationFn: (payload: WorkspaceJsonPayload) =>
+      syncWorkspace({
+        name: payload.name,
+        folders: payload.folders.map(f => ({
+          id: f.id,
+          name: f.name,
+          parentId: f.parentId
+        })),
+        links: payload.links.map(l => ({
+          id: l.id,
+          title: l.title,
+          url: l.url,
+          folderId: l.folderId
+        }))
+      }),
+    onMutate: () => setIsSyncing(true),
+    onSuccess: (result, payload) => {
+      const newWs: ApiWorkspace = {
+        id: result.workspaceId,
+        name: payload.name,
+        folders: payload.folders.map(f => ({
+          id: f.id ?? crypto.randomUUID(),
+          name: f.name,
+          parentId: f.parentId
+        })),
+        links: payload.links.map(l => ({
+          id: l.id ?? crypto.randomUUID(),
+          title: l.title,
+          url: l.url,
+          folderId: l.folderId
+        }))
+      }
+      queryClient.setQueryData<ApiWorkspace[]>(['workspaces'], (prev = []) => [
+        ...prev,
+        newWs
+      ])
+      clearCollections()
+      mapWorkspaceToCollections(newWs)
+      workspaceIdRef.current = result.workspaceId
+      workspaceNameRef.current = payload.name
+      setWorkspaceId(result.workspaceId)
+      setWorkspaceName(payload.name)
+    },
+    onSettled: () => setIsSyncing(false)
+  })
+
+  const createWorkspaceFromPayload = useCallback(
+    async (payload: WorkspaceJsonPayload): Promise<string | null> => {
+      if (!isAuthenticated) return null
+      try {
+        const result = await createFromPayloadMutation(payload)
+        return result.workspaceId
+      } catch {
+        return null
+      }
+    },
+    [isAuthenticated, createFromPayloadMutation]
+  )
+
   const addFolder = useCallback(
     (name: string, parentId: string | null = null): Folder => {
       const folder: Folder = { id: crypto.randomUUID(), name, parentId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
@@ -277,6 +338,7 @@ export function useWorkspace() {
     selectWorkspace,
     renameWorkspace,
     createWorkspace,
+    createWorkspaceFromPayload
   }
 }
 
