@@ -6,7 +6,16 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '#/components/ui/popover'
-import { Check, ChevronDown, FileJson, FolderPlus, Link2, Pencil, Plus, RefreshCw } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  FileJson,
+  FolderPlus,
+  Link2,
+  Pencil,
+  Plus,
+  RefreshCw
+} from 'lucide-react'
 import { cn } from '#/lib/utils'
 import { useWorkspacePage } from '../workspace-context'
 import { ShareButton } from './share-button'
@@ -15,7 +24,9 @@ export interface WorkspaceHeaderProps {
   onOpenCreateFromJson?: () => void
 }
 
-export function WorkspaceHeader({ onOpenCreateFromJson }: WorkspaceHeaderProps = {}) {
+export function WorkspaceHeader({
+  onOpenCreateFromJson
+}: WorkspaceHeaderProps = {}) {
   const {
     workspaceName,
     workspaceId,
