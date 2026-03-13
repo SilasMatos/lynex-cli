@@ -10,6 +10,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
 
+  
   plugins: [
     devtools(),
     contentCollections(),

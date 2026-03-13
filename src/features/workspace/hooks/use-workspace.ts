@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from '#/lib/auth-client'
-import { syncWorkspace, listWorkspaces } from '#/lib/workspace-api'
+import { syncWorkspace, listWorkspaces, deleteWorkspace as deleteWorkspaceApi } from '#/lib/workspace-api'
 import type { ApiWorkspace } from '#/lib/workspace-api'
 import type { WorkspaceJsonPayload } from '#/lib/workspace-json'
 import {
@@ -154,6 +154,44 @@ export function useWorkspace() {
       return null
     }
   }, [isAuthenticated, createWorkspaceMutation])
+
+  const { mutateAsync: deleteWorkspaceMutation } = useMutation({
+    mutationFn: (wsId: string) => deleteWorkspaceApi(wsId),
+    onSuccess: (_data, deletedId) => {
+      queryClient.setQueryData<ApiWorkspace[]>(['workspaces'], (prev = []) => {
+        const next = prev.filter((w) => w.id !== deletedId)
+        if (deletedId === workspaceIdRef.current) {
+          if (next.length > 0) {
+            const other = next[0]
+            workspaceIdRef.current = other.id
+            workspaceNameRef.current = other.name
+            setWorkspaceId(other.id)
+            setWorkspaceName(other.name)
+            mapWorkspaceToCollections(other)
+          } else {
+            workspaceIdRef.current = null
+            workspaceNameRef.current = 'My Workspace'
+            setWorkspaceId(null)
+            setWorkspaceName('My Workspace')
+            clearCollections()
+          }
+        }
+        return next
+      })
+    },
+  })
+
+  const deleteWorkspace = useCallback(
+    async (wsId: string): Promise<void> => {
+      if (!isAuthenticated) return
+      try {
+        await deleteWorkspaceMutation(wsId)
+      } catch {
+        // error handled by mutation / could toast
+      }
+    },
+    [isAuthenticated, deleteWorkspaceMutation]
+  )
 
   const { mutateAsync: createFromPayloadMutation } = useMutation({
     mutationFn: (payload: WorkspaceJsonPayload) =>
@@ -338,7 +376,8 @@ export function useWorkspace() {
     selectWorkspace,
     renameWorkspace,
     createWorkspace,
-    createWorkspaceFromPayload
+    createWorkspaceFromPayload,
+    deleteWorkspace
   }
 }
 

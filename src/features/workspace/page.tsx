@@ -35,7 +35,8 @@ export function WorkspacePage() {
     moveLink,
     selectWorkspace,
     renameWorkspace,
-    createWorkspace
+    createWorkspace,
+    deleteWorkspace
   } = workspace
 
   const [expandedIds, setExpandedIds] = useState<string[]>(() =>
@@ -161,7 +162,8 @@ export function WorkspacePage() {
     expandFolder,
     selectWorkspace,
     renameWorkspace,
-    createWorkspace
+    createWorkspace,
+    deleteWorkspace
   }
 
   return (

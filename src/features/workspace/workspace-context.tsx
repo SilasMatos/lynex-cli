@@ -28,6 +28,7 @@ export type WorkspacePageContextType = {
   selectWorkspace: (id: string) => void
   renameWorkspace: (name: string) => void
   createWorkspace: () => Promise<string | null>
+  deleteWorkspace: (workspaceId: string) => Promise<void>
 }
 
 export const [WorkspacePageProvider, useWorkspacePage] =

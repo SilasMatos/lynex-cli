@@ -14,7 +14,8 @@ import {
   Link2,
   Pencil,
   Plus,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from 'lucide-react'
 import { cn } from '#/lib/utils'
 import { useWorkspacePage } from '../workspace-context'
@@ -35,6 +36,7 @@ export function WorkspaceHeader({
     selectWorkspace,
     renameWorkspace,
     createWorkspace,
+    deleteWorkspace,
     openAddLinkDialog,
     startCreatingFolder
   } = useWorkspacePage()
@@ -87,63 +89,87 @@ export function WorkspaceHeader({
             <Pencil className="size-3.5 text-muted-foreground" aria-hidden />
           </button>
         )}
-        {allWorkspaces.length >= 1 && (
-          <Popover open={switcherOpen} onOpenChange={setSwitcherOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-6"
-                aria-label="Trocar workspace"
-              >
-                <ChevronDown className="size-3.5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="start"
-              className="w-[calc(100vw-2rem)] max-w-56 p-1 sm:w-56"
+
+        <Popover open={switcherOpen} onOpenChange={setSwitcherOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-6"
+              aria-label="Trocar workspace"
             >
-              <div className="flex max-h-[min(70vh,20rem)] flex-col gap-0.5 overflow-y-auto">
-                {allWorkspaces.map(ws => (
+              <ChevronDown className="size-3.5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            className="w-[calc(100vw-2rem)] max-w-56 p-2 sm:w-56"
+          >
+            <div className="flex max-h-[min(70vh,20rem)] flex-col gap-0.5 overflow-y-auto">
+              {allWorkspaces.map(ws => (
+                <div
+                  key={ws.id}
+                  className={cn(
+                    'group flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors',
+                    ws.id === workspaceId && 'bg-accent'
+                  )}
+                >
                   <button
-                    key={ws.id}
                     type="button"
                     onClick={() => {
                       selectWorkspace(ws.id)
                       setSwitcherOpen(false)
                     }}
-                    className={cn(
-                      'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent',
-                      ws.id === workspaceId && 'bg-accent'
-                    )}
+                    className="flex min-w-0 flex-1 items-center gap-2 rounded-sm text-left transition-colors hover:bg-accent"
                   >
                     <span className="flex size-3.5 shrink-0 items-center justify-center">
                       {ws.id === workspaceId && (
                         <Check className="size-3.5" aria-hidden />
                       )}
                     </span>
-                    {ws.name}
+                    <span className="truncate">{ws.name}</span>
                   </button>
-                ))}
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={async () => {
-                    const newId = await createWorkspace()
-                    setSwitcherOpen(false)
-                    if (newId) {
-                      setNameInput('Novo Workspace')
-                      setEditingName(true)
-                    }
-                  }}
-                  className="mt-1 w-full"
-                >
-                  <Plus aria-hidden /> Novo Workspace
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-6 shrink-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+                    aria-label={`Excluir workspace ${ws.name}`}
+                    onClick={e => {
+                      e.stopPropagation()
+                      if (
+                        window.confirm(
+                          `Excluir o workspace "${ws.name}"? Esta ação não pode ser desfeita.`
+                        )
+                      ) {
+                        deleteWorkspace(ws.id)
+                        setSwitcherOpen(false)
+                      }
+                    }}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                variant="default"
+                size="sm"
+                onClick={async () => {
+                  const newId = await createWorkspace()
+                  setSwitcherOpen(false)
+                  if (newId) {
+                    setNameInput('Novo Workspace')
+                    setEditingName(true)
+                  }
+                }}
+                className="mt-1 w-full"
+              >
+                <Plus aria-hidden /> Novo Workspace
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+
         {isSyncing && (
           <RefreshCw
             className="size-3.5 animate-spin text-muted-foreground"
