@@ -41,7 +41,7 @@ export async function syncWorkspace(payload: {
 }
 
 export async function listWorkspaces(): Promise<ApiWorkspace[]> {
-  const res = await fetch(`${BASE_URL}/workspaces`, {
+  const res = await fetch(`${BASE_URL}/workspaces/`, {
     credentials: 'include',
   })
   if (!res.ok) throw new Error('Failed to fetch workspaces')

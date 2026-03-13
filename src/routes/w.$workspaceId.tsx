@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { getWorkspace } from '#/lib/workspace-api'
 import type { ApiWorkspace, ApiFolder, ApiLink } from '#/lib/workspace-api'
 import { Skeleton } from '#/components/ui/skeleton'
-import Logo from '#/components/logo'
 import { Folder, Link2, ChevronRight } from 'lucide-react'
 
 export const Route = createFileRoute('/w/$workspaceId')({
