@@ -15,15 +15,19 @@ import {
   Pencil,
   Plus,
   RefreshCw,
+  Share2,
   Trash2
 } from 'lucide-react'
 import { cn } from '#/lib/utils'
 import { useWorkspacePage } from '../workspace-context'
+import { DeleteWorkspaceActionBar } from './delete-workspace-action-bar'
 import { ShareButton } from './share-button'
 
 export interface WorkspaceHeaderProps {
   onOpenCreateFromJson?: () => void
 }
+
+type PendingDelete = { id: string; name: string } | null
 
 export function WorkspaceHeader({
   onOpenCreateFromJson
@@ -44,6 +48,9 @@ export function WorkspaceHeader({
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(workspaceName)
   const [switcherOpen, setSwitcherOpen] = useState(false)
+  const [actionsOpen, setActionsOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     setNameInput(workspaceName)
@@ -110,7 +117,7 @@ export function WorkspaceHeader({
                 <div
                   key={ws.id}
                   className={cn(
-                    'group flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors',
+                    'group flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors hover:bg-accent',
                     ws.id === workspaceId && 'bg-accent'
                   )}
                 >
@@ -120,7 +127,7 @@ export function WorkspaceHeader({
                       selectWorkspace(ws.id)
                       setSwitcherOpen(false)
                     }}
-                    className="flex min-w-0 flex-1 items-center gap-2 rounded-sm text-left transition-colors hover:bg-accent"
+                    className="flex min-w-0 flex-1 items-center gap-2 rounded-sm text-left transition-colors"
                   >
                     <span className="flex size-3.5 shrink-0 items-center justify-center">
                       {ws.id === workspaceId && (
@@ -137,14 +144,8 @@ export function WorkspaceHeader({
                     aria-label={`Excluir workspace ${ws.name}`}
                     onClick={e => {
                       e.stopPropagation()
-                      if (
-                        window.confirm(
-                          `Excluir o workspace "${ws.name}"? Esta ação não pode ser desfeita.`
-                        )
-                      ) {
-                        deleteWorkspace(ws.id)
-                        setSwitcherOpen(false)
-                      }
+                      setPendingDelete({ id: ws.id, name: ws.name })
+                      setSwitcherOpen(false)
                     }}
                   >
                     <Trash2 className="size-3.5" />
@@ -178,19 +179,46 @@ export function WorkspaceHeader({
         )}
       </div>
       <div className="flex flex-wrap gap-2">
-        {onOpenCreateFromJson && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onOpenCreateFromJson}
-            aria-label="Criar workspace a partir de JSON"
-          >
-            <FileJson className="size-4" aria-hidden />
-            Criar por JSON
-          </Button>
-        )}
-        <ShareButton />
+        <Popover open={actionsOpen} onOpenChange={setActionsOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label="Ações do workspace"
+            >
+              <Share2 className="size-4" aria-hidden />
+              Ações
+              <ChevronDown className="size-3.5" aria-hidden />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-48 p-2">
+            <div className="flex flex-col gap-0.5">
+              <ShareButton
+                onAction={() => setActionsOpen(false)}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              />
+              {onOpenCreateFromJson && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => {
+                    onOpenCreateFromJson()
+                    setActionsOpen(false)
+                  }}
+                  aria-label="Importar workspace de JSON"
+                >
+                  <FileJson className="size-4" aria-hidden />
+                  Importar de JSON
+                </Button>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
         <Button
           variant="outline"
           size="sm"
@@ -204,6 +232,25 @@ export function WorkspaceHeader({
           Nova Pasta
         </Button>
       </div>
+
+      {pendingDelete && (
+        <DeleteWorkspaceActionBar
+          workspaceName={pendingDelete.name}
+          isDeleting={isDeleting}
+          onConfirm={async () => {
+            setIsDeleting(true)
+            try {
+              await deleteWorkspace(pendingDelete.id)
+              setPendingDelete(null)
+            } finally {
+              setIsDeleting(false)
+            }
+          }}
+          onCancel={() => {
+            if (!isDeleting) setPendingDelete(null)
+          }}
+        />
+      )}
     </div>
   )
 }

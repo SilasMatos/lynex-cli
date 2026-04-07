@@ -104,7 +104,26 @@ function SharedWorkspacePage() {
 
   useEffect(() => {
     getWorkspace(workspaceId)
-      .then(setWorkspace)
+      .then((raw: unknown) => {
+        const data = raw as
+          | ApiWorkspace
+          | {
+              workspace: { id: string; name: string }
+              folders: ApiFolder[]
+              links: ApiLink[]
+            }
+
+        if ('workspace' in data) {
+          setWorkspace({
+            id: data.workspace.id,
+            name: data.workspace.name,
+            folders: data.folders,
+            links: data.links,
+          })
+        } else {
+          setWorkspace(data)
+        }
+      })
       .catch(() => setError('Workspace não encontrado ou não disponível.'))
       .finally(() => setIsLoading(false))
   }, [workspaceId])

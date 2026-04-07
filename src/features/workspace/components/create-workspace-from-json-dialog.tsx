@@ -143,11 +143,11 @@ export function CreateWorkspaceFromJsonDialog({
         data-slot="create-workspace-from-json-dialog"
       >
         <DialogHeader>
-          <DialogTitle>Criar workspace a partir de JSON</DialogTitle>
+          <DialogTitle>Importar workspace de JSON</DialogTitle>
           <DialogDescription className="space-y-1">
             <span className="block">
-              Template de exemplo para copiar e editar. Você pode modificar ou
-              usar uma IA para ajustar.
+              Cole um JSON no formato do workspace (nome, pastas e links) para
+              criar um novo workspace. Use o template ou edite com uma IA.
             </span>
           </DialogDescription>
         </DialogHeader>
@@ -250,7 +250,7 @@ export function CreateWorkspaceFromJsonDialog({
             onClick={handleCreate}
             disabled={isLoading || !jsonInput.trim()}
           >
-            {isLoading ? 'Criando…' : 'Criar workspace'}
+            {isLoading ? 'Importando…' : 'Importar workspace'}
           </Button>
         </DialogFooter>
       </DialogContent>
